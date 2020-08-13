@@ -2,7 +2,7 @@
 var apiUrl = "https://judge0.p.rapidapi.com";
 var apiAuth = {
     "x-rapidapi-host": "judge0.p.rapidapi.com",
-    "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj" // Your RapidAPI Key
+    "x-rapidapi-key": "7bebf70ac0msh05bf56d3890e695p12423fjsn3c68debdf06a" // Your RapidAPI Key
 };
 var wait = localStorageGetItem("wait") || false;
 var pbUrl = "https://pb.judge0.com";
@@ -260,41 +260,41 @@ function getIdFromURI() {
 }
 
 function save() {
-    var content = JSON.stringify({
-        source_code: encode(sourceEditor.getValue()),
-        language_id: $selectLanguage.val(),
-        compiler_options: $compilerOptions.val(),
-        command_line_arguments: $commandLineArguments.val(),
-        stdin: encode(stdinEditor.getValue()),
-        stdout: encode(stdoutEditor.getValue()),
-        stderr: encode(stderrEditor.getValue()),
-        compile_output: encode(compileOutputEditor.getValue()),
-        sandbox_message: encode(sandboxMessageEditor.getValue()),
-        status_line: encode($statusLine.html())
-    });
-    var filename = "judge0-ide.json";
-    var data = {
-        content: content,
-        filename: filename
-    };
-
-    $.ajax({
-        url: pbUrl,
-        type: "POST",
-        async: true,
-        headers: {
-            "Accept": "application/json"
-        },
-        data: data,
-        success: function (data, textStatus, jqXHR) {
-            if (getIdFromURI() != data["short"]) {
-                window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            handleError(jqXHR, textStatus, errorThrown);
-        }
-    });
+    // var content = JSON.stringify({
+    //     source_code: encode(sourceEditor.getValue()),
+    //     language_id: $selectLanguage.val(),
+    //     compiler_options: $compilerOptions.val(),
+    //     command_line_arguments: $commandLineArguments.val(),
+    //     stdin: encode(stdinEditor.getValue()),
+    //     stdout: encode(stdoutEditor.getValue()),
+    //     stderr: encode(stderrEditor.getValue()),
+    //     compile_output: encode(compileOutputEditor.getValue()),
+    //     sandbox_message: encode(sandboxMessageEditor.getValue()),
+    //     status_line: encode($statusLine.html())
+    // });
+    // var filename = "judge0-ide.json";
+    // var data = {
+    //     content: content,
+    //     filename: filename
+    // };
+    //
+    // $.ajax({
+    //     url: pbUrl,
+    //     type: "POST",
+    //     async: true,
+    //     headers: {
+    //         "Accept": "application/json"
+    //     },
+    //     data: data,
+    //     success: function (data, textStatus, jqXHR) {
+    //         if (getIdFromURI() != data["short"]) {
+    //             window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
+    //         }
+    //     },
+    //     error: function (jqXHR, textStatus, errorThrown) {
+    //         handleError(jqXHR, textStatus, errorThrown);
+    //     }
+    // });
 }
 
 function downloadSource() {
@@ -310,6 +310,7 @@ function loadSavedSource() {
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
             headers: apiAuth,
+
             success: function(data, textStatus, jqXHR) {
                 sourceEditor.setValue(decode(data["source_code"]));
                 $selectLanguage.dropdown("set selected", data["language_id"]);
@@ -401,9 +402,6 @@ function run() {
             async: true,
             contentType: "application/json",
             data: JSON.stringify(data),
-            xhrFields: {
-                withCredentials: apiUrl.indexOf("/secure") != -1 ? true : false
-            },
             success: function (data, textStatus, jqXHR) {
                 console.log(`Your submission token is: ${data.token}`);
                 if (wait == true) {
@@ -481,7 +479,7 @@ function loadRandomLanguage() {
     // $selectLanguage.dropdown("set selected", values[Math.floor(Math.random() * $selectLanguage[0].length)]);
     $selectLanguage.dropdown("set selected", "54"); // Load C++ by default
     apiUrl = resolveApiUrl($selectLanguage.val());
-    insertTemplate();
+    changeEditorLanguage();
 }
 
 function resizeEditor(layoutInfo) {
@@ -524,8 +522,9 @@ function resolveLanguageId(id) {
 }
 
 function resolveApiUrl(id) {
-    id = parseInt(id);
-    return languageApiUrlTable[id] || defaultUrl;
+    return apiUrl;
+    // id = parseInt(id);
+    // return languageApiUrlTable[id] || "https://secure.judge0.com/standard";
 }
 
 function editorsUpdateFontSize(fontSize) {
@@ -692,7 +691,7 @@ $(document).ready(function () {
                 minimap: {
                     enabled: false
                 },
-                rulers: [80, 120]
+                // rulers: [80, 120]
             });
 
             Firepad.fromMonaco(firepadRef, sourceEditor);
