@@ -1,4 +1,4 @@
-var defaultUrl = localStorageGetItem("api-url") || "https://secure.judge0.com/standard";
+var defaultUrl = localStorageGetItem("api-url") || "https://judge0.p.rapidapi.com";
 var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
 var pbUrl = "https://pb.judge0.com";
@@ -165,17 +165,18 @@ function showMessages() {
 }
 
 function loadMessages() {
-    $.ajax({
-        url: `https://minio.judge0.com/public/ide/messages.json?${Date.now()}`,
-        type: "GET",
-        headers: {
-            "Accept": "application/json"
-        },
-        success: function (data, textStatus, jqXHR) {
-            messagesData = data;
-            showMessages();
-        }
-    });
+    // $.ajax({
+    //     url: `https://minio.judge0.com/public/ide/messages.json?${Date.now()}`,
+    //     type: "GET",
+    //     headers: {
+    //         "Accept": "application/json"
+    //     },
+    //     success: function (data, textStatus, jqXHR) {
+    //         messagesData = data;
+    //         console.log(messagesData);
+    //         showMessages();
+    //     }
+    // });
 }
 
 function showError(title, content) {
@@ -304,6 +305,13 @@ function loadSavedSource() {
         $.ajax({
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
+            "crossDomain": true,
+            "headers": {
+                "x-rapidapi-host": "judge0.p.rapidapi.com",
+                "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj",
+                "content-type": "application/json",
+                "accept": "application/json"
+            },
             success: function(data, textStatus, jqXHR) {
                 sourceEditor.setValue(decode(data["source_code"]));
                 $selectLanguage.dropdown("set selected", data["language_id"]);
@@ -394,8 +402,12 @@ function run() {
             async: true,
             contentType: "application/json",
             data: JSON.stringify(data),
-            xhrFields: {
-                withCredentials: apiUrl.indexOf("/secure") != -1 ? true : false
+            "crossDomain": true,
+            "headers": {
+                "x-rapidapi-host": "judge0.p.rapidapi.com",
+                "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj",
+                "content-type": "application/json",
+                "accept": "application/json"
             },
             success: function (data, textStatus, jqXHR) {
                 console.log(`Your submission token is: ${data.token}`);
@@ -441,6 +453,13 @@ function fetchSubmission(submission_token) {
         url: apiUrl + "/submissions/" + submission_token + "?base64_encoded=true",
         type: "GET",
         async: true,
+        "crossDomain": true,
+        "headers": {
+            "x-rapidapi-host": "judge0.p.rapidapi.com",
+            "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj",
+            "content-type": "application/json",
+            "accept": "application/json"
+        },
         success: function (data, textStatus, jqXHR) {
             if (data.status.id <= 2) { // In Queue or Processing
                 setTimeout(fetchSubmission.bind(null, submission_token), check_timeout);
@@ -460,17 +479,18 @@ function changeEditorLanguage() {
 }
 
 function insertTemplate() {
-    currentLanguageId = parseInt($selectLanguage.val());
-    sourceEditor.setValue(sources[currentLanguageId]);
+    // currentLanguageId = parseInt($selectLanguage.val());
+    // sourceEditor.setValue(sources[currentLanguageId]);
     changeEditorLanguage();
 }
 
 function loadRandomLanguage() {
-    var values = [];
-    for (var i = 0; i < $selectLanguage[0].options.length; ++i) {
-        values.push($selectLanguage[0].options[i].value);
-    }
-    $selectLanguage.dropdown("set selected", values[Math.floor(Math.random() * $selectLanguage[0].length)]);
+    // var values = [];
+    // for (var i = 0; i < $selectLanguage[0].options.length; ++i) {
+    //     values.push($selectLanguage[0].options[i].value);
+    // }
+    // $selectLanguage.dropdown("set selected", values[Math.floor(Math.random() * $selectLanguage[0].length)]);
+    $selectLanguage.dropdown("set selected", "54"); // Load C++ by default
     apiUrl = resolveApiUrl($selectLanguage.val());
     insertTemplate();
 }
@@ -643,6 +663,36 @@ $(document).ready(function () {
         MonacoVim = MVim;
         MonacoEmacs = MEmacs;
 
+        var firebaseConfig = {
+            apiKey: "AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA",
+            authDomain: "live-cp-ide.firebaseapp.com",
+            databaseURL: "https://live-cp-ide.firebaseio.com",
+            projectId: "live-cp-ide",
+            storageBucket: "live-cp-ide.appspot.com",
+            messagingSenderId: "350143604950",
+            appId: "1:350143604950:web:3a5716645632d42def0177",
+            measurementId: "G-V2G3NLWBWF"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+
+        var firepadRef = getExampleRef();
+        function getExampleRef() {
+            var ref = firebase.database().ref();
+            var hash = window.location.hash.replace(/#/g, '');
+            if (hash) {
+                ref = ref.child(hash);
+            } else {
+                ref = ref.push(); // generate unique location.
+                window.location = window.location + '#' + ref.key; // add it as a hash to the URL.
+            }
+            if (typeof console !== 'undefined') {
+                console.log('Firebase data: ', ref.toString());
+            }
+            return ref;
+        }
+
         layout.registerComponent("source", function (container, state) {
             sourceEditor = monaco.editor.create(container.getElement()[0], {
                 automaticLayout: true,
@@ -655,6 +705,8 @@ $(document).ready(function () {
                 },
                 rulers: [80, 120]
             });
+
+            Firepad.fromMonaco(firepadRef, sourceEditor);
 
             changeEditorMode();
 
