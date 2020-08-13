@@ -665,7 +665,7 @@ $(document).ready(function () {
         firebase.initializeApp(firebaseConfig);
         firebase.analytics();
 
-        var firepadRef = getExampleRef();
+        var [sourceFirepadRef, inputFirepadRef] = getExampleRef();
         function getExampleRef() {
             var ref = firebase.database().ref();
             var hash = window.location.hash.replace(/#/g, '');
@@ -674,11 +674,14 @@ $(document).ready(function () {
             } else {
                 ref = ref.push(); // generate unique location.
                 window.location = window.location + '#' + ref.key; // add it as a hash to the URL.
+                hash = ref.key;
             }
             if (typeof console !== 'undefined') {
                 console.log('Firebase data: ', ref.toString());
             }
-            return ref;
+            var inpRef = firebase.database().ref();
+            inpRef = inpRef.child(hash + "--input")
+            return [ref, inpRef];
         }
 
         layout.registerComponent("source", function (container, state) {
@@ -691,10 +694,10 @@ $(document).ready(function () {
                 minimap: {
                     enabled: false
                 },
-                // rulers: [80, 120]
+                rulers: []
             });
 
-            Firepad.fromMonaco(firepadRef, sourceEditor);
+            Firepad.fromMonaco(sourceFirepadRef, sourceEditor);
 
             changeEditorMode();
 
@@ -717,6 +720,8 @@ $(document).ready(function () {
                     enabled: false
                 }
             });
+
+            Firepad.fromMonaco(inputFirepadRef, stdinEditor);
         });
 
         layout.registerComponent("stdout", function (container, state) {
