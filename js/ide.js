@@ -546,7 +546,7 @@ function updateScreenElements() {
 $(window).resize(function() {
     layout.updateSize();
     updateScreenElements();
-    showMessages();
+    // showMessages();
 });
 
 $(document).ready(function () {
