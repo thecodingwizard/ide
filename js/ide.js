@@ -1,8 +1,12 @@
-var defaultUrl = localStorageGetItem("api-url") || "https://judge0.p.rapidapi.com";
-var apiUrl = defaultUrl;
+// RapidAPI Configuration (https://rapidapi.com/hermanzdosilovic/api/judge0)
+var apiUrl = "https://judge0.p.rapidapi.com";
+var apiAuth = {
+    "x-rapidapi-host": "judge0.p.rapidapi.com",
+    "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj" // Your RapidAPI Key
+};
 var wait = localStorageGetItem("wait") || false;
 var pbUrl = "https://pb.judge0.com";
-var check_timeout = 200;
+var check_timeout = 1000;
 
 var blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
 var editorMode = localStorageGetItem("editorMode") || "normal";
@@ -305,13 +309,7 @@ function loadSavedSource() {
         $.ajax({
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
-            "crossDomain": true,
-            "headers": {
-                "x-rapidapi-host": "judge0.p.rapidapi.com",
-                "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj",
-                "content-type": "application/json",
-                "accept": "application/json"
-            },
+            headers: apiAuth,
             success: function(data, textStatus, jqXHR) {
                 sourceEditor.setValue(decode(data["source_code"]));
                 $selectLanguage.dropdown("set selected", data["language_id"]);
@@ -399,15 +397,12 @@ function run() {
         $.ajax({
             url: apiUrl + `/submissions?base64_encoded=true&wait=${wait}`,
             type: "POST",
+            headers: apiAuth,
             async: true,
             contentType: "application/json",
             data: JSON.stringify(data),
-            "crossDomain": true,
-            "headers": {
-                "x-rapidapi-host": "judge0.p.rapidapi.com",
-                "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj",
-                "content-type": "application/json",
-                "accept": "application/json"
+            xhrFields: {
+                withCredentials: apiUrl.indexOf("/secure") != -1 ? true : false
             },
             success: function (data, textStatus, jqXHR) {
                 console.log(`Your submission token is: ${data.token}`);
@@ -452,14 +447,8 @@ function fetchSubmission(submission_token) {
     $.ajax({
         url: apiUrl + "/submissions/" + submission_token + "?base64_encoded=true",
         type: "GET",
+        headers: apiAuth,
         async: true,
-        "crossDomain": true,
-        "headers": {
-            "x-rapidapi-host": "judge0.p.rapidapi.com",
-            "x-rapidapi-key": "OhnrJYZmCNmsh0NRITtmb7wo7GCvp1j5wWbjsnLtrSXr7s1Jwj",
-            "content-type": "application/json",
-            "accept": "application/json"
-        },
         success: function (data, textStatus, jqXHR) {
             if (data.status.id <= 2) { // In Queue or Processing
                 setTimeout(fetchSubmission.bind(null, submission_token), check_timeout);
@@ -1213,29 +1202,6 @@ entrypoint function main(arg?: String): String {\n\
 }\n\
 ";
 
-var cppTestSource = "\
-#include <gtest/gtest.h>\n\
-\n\
-int add(int x, int y) {\n\
-    return x + y;\n\
-}\n\
-\n\
-TEST(AdditionTest, NeutralElement) {\n\
-    EXPECT_EQ(1, add(1, 0));\n\
-    EXPECT_EQ(1, add(0, 1));\n\
-    EXPECT_EQ(0, add(0, 0));\n\
-}\n\
-\n\
-TEST(AdditionTest, CommutativeProperty) {\n\
-    EXPECT_EQ(add(2, 3), add(3, 2));\n\
-}\n\
-\n\
-int main(int argc, char **argv) {\n\
-    ::testing::InitGoogleTest(&argc, argv);\n\
-    return RUN_ALL_TESTS();\n\
-}\n\
-";
-
 var sources = {
     45: assemblySource,
     46: bashSource,
@@ -1293,8 +1259,7 @@ var sources = {
     1008: mpipySource,
     1009: nimSource,
     1010: pythonForMlSource,
-    1011: bosqueSource,
-    1012: cppTestSource
+    1011: bosqueSource
 };
 
 var fileNames = {
@@ -1354,8 +1319,7 @@ var fileNames = {
     1008: "script.py",
     1009: "main.nim",
     1010: "script.py",
-    1011: "main.bsq",
-    1012: "main.cpp"
+    1011: "main.bsq"
 };
 
 var languageIdTable = {
@@ -1369,8 +1333,7 @@ var languageIdTable = {
     1008: 8,
     1009: 9,
     1010: 10,
-    1011: 11,
-    1012: 12
+    1011: 11
 }
 
 var extraApiUrl = "https://secure.judge0.com/extra";
@@ -1385,6 +1348,5 @@ var languageApiUrlTable = {
     1008: extraApiUrl,
     1009: extraApiUrl,
     1010: extraApiUrl,
-    1011: extraApiUrl,
-    1012: extraApiUrl
+    1011: extraApiUrl
 }
