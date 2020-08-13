@@ -30,18 +30,28 @@
 <!--    <link rel="stylesheet" href="https://firepad.io/releases/v1.5.9/firepad.css" />-->
     <script src="https://firepad.io/releases/v1.5.10/firepad.min.js"></script>
 
+    <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
     <script>
-        var require = {
+        require.config({
             paths: {
                 "vs": "https://unpkg.com/monaco-editor/min/vs",
-                "monaco-vim": "https://unpkg.com/monaco-vim/dist/monaco-vim",
-                "monaco-emacs": "https://unpkg.com/monaco-emacs/dist/monaco-emacs"
+                // "monaco-vim": "https://unpkg.com/monaco-vim/dist/monaco-vim",
+                // "monaco-emacs": "https://unpkg.com/monaco-emacs/dist/monaco-emacs"
             }
-        };
+        })
     </script>
-    <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.20.0/min/vs/editor/editor.main.nls.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.20.0/min/vs/editor/editor.main.js"></script>
+<!--    <script src="https://unpkg.com/monaco-editor@0.20.0/min/vs/editor/editor.main.nls.js"></script>-->
+<!--    <script src="https://unpkg.com/monaco-editor@0.20.0/min/vs/editor/editor.main.js"></script>-->
+
+<!--    <script>-->
+<!--        var require = {-->
+<!--            paths: {-->
+<!--                "vs": "https://unpkg.com/monaco-editor/min/vs",-->
+<!--                "monaco-vim": "https://unpkg.com/monaco-vim/dist/monaco-vim",-->
+<!--                "monaco-emacs": "https://unpkg.com/monaco-emacs/dist/monaco-emacs"-->
+<!--            }-->
+<!--        };-->
+<!--    </script>-->
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.js"></script>
@@ -236,18 +246,18 @@
                             <label>Normal</label>
                         </div>
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="editor-mode" value="vim">
-                            <label>Vim</label>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="editor-mode" value="emacs">
-                            <label>Emacs</label>
-                        </div>
-                    </div>
+<!--                    <div class="field">-->
+<!--                        <div class="ui radio checkbox">-->
+<!--                            <input type="radio" name="editor-mode" value="vim">-->
+<!--                            <label>Vim</label>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="field">-->
+<!--                        <div class="ui radio checkbox">-->
+<!--                            <input type="radio" name="editor-mode" value="emacs">-->
+<!--                            <label>Emacs</label>-->
+<!--                        </div>-->
+<!--                    </div>-->
                 </div>
                 <div class="inline field">
                     <div class="ui checkbox">

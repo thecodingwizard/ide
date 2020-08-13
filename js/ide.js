@@ -13,7 +13,7 @@ var editorMode = localStorageGetItem("editorMode") || "normal";
 var redirectStderrToStdout = ((localStorageGetItem("redirectStderrToStdout") || "false") === "true");
 var editorModeObject = null;
 
-var fontSize = 14;
+var fontSize = 16;
 
 var MonacoVim;
 var MonacoEmacs;
@@ -645,7 +645,7 @@ $(document).ready(function () {
 
     loadMessages();
 
-    require(["vs/editor/editor.main", "monaco-vim", "monaco-emacs"], function (ignorable, MVim, MEmacs) {
+    require(["vs/editor/editor.main"/*, "monaco-vim", "monaco-emacs"*/], function (ignorable, MVim, MEmacs) {
         layout = new GoldenLayout(layoutConfig, $("#site-content"));
 
         MonacoVim = MVim;
