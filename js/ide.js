@@ -469,8 +469,8 @@ function changeEditorLanguage() {
 }
 
 function insertTemplate() {
-    // currentLanguageId = parseInt($selectLanguage.val());
-    // sourceEditor.setValue(sources[currentLanguageId]);
+    currentLanguageId = parseInt($selectLanguage.val());
+    sourceEditor.setValue(sources[currentLanguageId]);
     changeEditorLanguage();
 }
 
@@ -700,7 +700,13 @@ $(document).ready(function () {
                 rulers: [],
             });
 
-            Firepad.fromMonaco(sourceFirepadRef, sourceEditor);
+            const firepad = Firepad.fromMonaco(sourceFirepadRef, sourceEditor);
+
+            firepad.on('ready', function() {
+                if (sourceEditor.getValue().length === 0) {
+                    insertTemplate();
+                }
+            });
 
             changeEditorMode();
 
@@ -867,14 +873,16 @@ public class Hello {\n\
 }\n\
 ";
 
-var cppSource = "\
-#include <iostream>\n\
-\n\
-int main() {\n\
-    std::cout << \"hello, world\" << std::endl;\n\
-    return 0;\n\
-}\n\
-";
+let cppSource = `#include <bits/stdc++.h>
+
+using namespace std;
+
+int main() {
+    cout << "Hello World!" << endl;
+    
+    return 0;
+}
+`;
 
 var clojureSource = "(println \"hello, world\")\n";
 
@@ -938,13 +946,43 @@ var groovySource = "println \"hello, world\"\n";
 
 var haskellSource = "main = putStrLn \"hello, world\"";
 
-var javaSource = "\
-public class Main {\n\
-    public static void main(String[] args) {\n\
-        System.out.println(\"hello, world\");\n\
-    }\n\
-}\n\
-";
+var javaSource = `// Source: https://usaco-guide.vercel.app/general/io
+
+import java.io.*;
+import java.util.*;
+
+public class template {
+    static class InputReader {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+        public InputReader(InputStream stream) {
+            reader = new BufferedReader(new InputStreamReader(stream), 32768);
+            tokenizer = null;
+        }
+        String next() { // reads in the next string
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                try {
+                    tokenizer = new StringTokenizer(reader.readLine());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return tokenizer.nextToken();
+        }
+        public int nextInt() { return Integer.parseInt(next()); } // reads in the next int
+        public long nextLong() { return Long.parseLong(next()); } // reads in the next long
+        public double nextDouble() { return Double.parseDouble(next()); } // reads in the next double
+    }
+    static InputReader r = new InputReader(System.in);
+    static PrintWriter pw = new PrintWriter(System.out);
+    public static void main(String[] args) {
+
+        // YOUR CODE HERE
+
+        pw.close(); // flushes the output once printing is done
+    }
+}
+`;
 
 var javaScriptSource = "console.log(\"hello, world\");";
 
@@ -999,7 +1037,21 @@ var prologSource = "\
 main :- write('hello, world\\n').\n\
 ";
 
-var pythonSource = "print(\"hello, world\")";
+var pythonSource = `# Source: https://usaco-guide.vercel.app/general/io
+
+# take in an integer n on a single line
+n = int(input())
+# take in integers n and m, both on the same line
+n, m = map(int, input().split())
+# read in a series of numbers on one line into a list
+list = [int(x) for x in input().split()]
+# read in a string
+myStr = input()
+# prints the string on its own line
+print(myStr)
+# prints integer n with a space after it (note the necessary explicit cast str())
+print(str(n), end = " ")
+`
 
 var rSource = "cat(\"hello, world\\n\")";
 
