@@ -555,8 +555,6 @@ $(window).resize(function() {
 $(document).ready(function () {
     updateScreenElements();
 
-    console.log("Hey, Judge0 IDE is open-sourced: https://github.com/judge0/ide. Have fun!");
-
     $selectLanguage = $("#select-language");
     $selectLanguage.change(function (e) {
         if (!isEditorDirty) {
@@ -605,6 +603,7 @@ $(document).ready(function () {
     $statusLine = $("#status-line");
 
     $("body").keydown(function (e) {
+        console.log(e);
         var keyCode = e.keyCode || e.which;
         if (keyCode == 120) { // F9
             e.preventDefault();
@@ -627,11 +626,11 @@ $(document).ready(function () {
         } else if (event.ctrlKey && keyCode == 83) { // Ctrl+S
             e.preventDefault();
             save();
-        } else if (event.ctrlKey && keyCode == 107) { // Ctrl++
+        } else if (event.ctrlKey && (keyCode == 187 || keyCode == 107)) { // Ctrl++
             e.preventDefault();
             fontSize += 1;
             editorsUpdateFontSize(fontSize);
-        } else if (event.ctrlKey && keyCode == 109) { // Ctrl+-
+        } else if (event.ctrlKey && (keyCode == 189 || keyCode == 109)) { // Ctrl+-
             e.preventDefault();
             fontSize -= 1;
             editorsUpdateFontSize(fontSize);
@@ -648,183 +647,185 @@ $(document).ready(function () {
 
     loadMessages();
 
-    require(["vs/editor/editor.main", /*, "monaco-vim", "monaco-emacs"*/], function (ignorable, MVim, MEmacs) {
-        layout = new GoldenLayout(layoutConfig, $("#site-content"));
+    require(["vs/editor/editor.main"], function (ignorable) {
+        require(["monaco-vim", "monaco-emacs"], function(MVim, MEmacs) {
+            layout = new GoldenLayout(layoutConfig, $("#site-content"));
 
-        MonacoVim = MVim;
-        MonacoEmacs = MEmacs;
+            MonacoVim = MVim;
+            MonacoEmacs = MEmacs;
 
-        var firebaseConfig = {
-            apiKey: "AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA",
-            authDomain: "live-cp-ide.firebaseapp.com",
-            databaseURL: "https://live-cp-ide.firebaseio.com",
-            projectId: "live-cp-ide",
-            storageBucket: "live-cp-ide.appspot.com",
-            messagingSenderId: "350143604950",
-            appId: "1:350143604950:web:3a5716645632d42def0177",
-            measurementId: "G-V2G3NLWBWF"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
+            var firebaseConfig = {
+                apiKey: "AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA",
+                authDomain: "live-cp-ide.firebaseapp.com",
+                databaseURL: "https://live-cp-ide.firebaseio.com",
+                projectId: "live-cp-ide",
+                storageBucket: "live-cp-ide.appspot.com",
+                messagingSenderId: "350143604950",
+                appId: "1:350143604950:web:3a5716645632d42def0177",
+                measurementId: "G-V2G3NLWBWF"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            firebase.analytics();
 
-        var [sourceFirepadRef, inputFirepadRef] = getExampleRef();
-        function getExampleRef() {
-            var ref = firebase.database().ref();
-            var hash = window.location.hash.replace(/#/g, '');
-            if (hash) {
-                ref = ref.child(hash);
-            } else {
-                ref = ref.push(); // generate unique location.
-                window.location = window.location + '#' + ref.key; // add it as a hash to the URL.
-                hash = ref.key;
+            var [sourceFirepadRef, inputFirepadRef] = getExampleRef();
+            function getExampleRef() {
+                var ref = firebase.database().ref();
+                var hash = window.location.hash.replace(/#/g, '');
+                if (hash) {
+                    ref = ref.child(hash);
+                } else {
+                    ref = ref.push(); // generate unique location.
+                    window.location = window.location + '#' + ref.key; // add it as a hash to the URL.
+                    hash = ref.key;
+                }
+                if (typeof console !== 'undefined') {
+                    console.log('Firebase data: ', ref.toString());
+                }
+                var inpRef = firebase.database().ref();
+                inpRef = inpRef.child(hash + "--input")
+                return [ref, inpRef];
             }
-            if (typeof console !== 'undefined') {
-                console.log('Firebase data: ', ref.toString());
-            }
-            var inpRef = firebase.database().ref();
-            inpRef = inpRef.child(hash + "--input")
-            return [ref, inpRef];
-        }
 
-        layout.registerComponent("source", function (container, state) {
-            sourceEditor = monaco.editor.create(container.getElement()[0], {
-                automaticLayout: true,
-                theme: "vs-dark",
-                scrollBeyondLastLine: true,
-                readOnly: state.readOnly,
-                language: "cpp",
-                minimap: {
-                    enabled: false
-                },
-                rulers: [],
+            layout.registerComponent("source", function (container, state) {
+                sourceEditor = monaco.editor.create(container.getElement()[0], {
+                    automaticLayout: true,
+                    theme: "vs-dark",
+                    scrollBeyondLastLine: true,
+                    readOnly: state.readOnly,
+                    language: "cpp",
+                    minimap: {
+                        enabled: false
+                    },
+                    rulers: [],
+                });
+
+                const firepad = Firepad.fromMonaco(sourceFirepadRef, sourceEditor);
+
+                firepad.on('ready', function() {
+                    if (sourceEditor.getValue().length === 0) {
+                        insertTemplate();
+                    }
+                });
+
+                changeEditorMode();
+
+                sourceEditor.getModel().onDidChangeContent(function (e) {
+                    currentLanguageId = parseInt($selectLanguage.val());
+                    isEditorDirty = sourceEditor.getValue() != sources[currentLanguageId];
+                });
+
+                sourceEditor.onDidLayoutChange(resizeEditor);
             });
 
-            const firepad = Firepad.fromMonaco(sourceFirepadRef, sourceEditor);
+            layout.registerComponent("stdin", function (container, state) {
+                stdinEditor = monaco.editor.create(container.getElement()[0], {
+                    automaticLayout: true,
+                    theme: "vs-dark",
+                    scrollBeyondLastLine: false,
+                    readOnly: state.readOnly,
+                    language: "plaintext",
+                    minimap: {
+                        enabled: false
+                    }
+                });
 
-            firepad.on('ready', function() {
-                if (sourceEditor.getValue().length === 0) {
-                    insertTemplate();
-                }
+                Firepad.fromMonaco(inputFirepadRef, stdinEditor);
             });
 
-            changeEditorMode();
+            layout.registerComponent("stdout", function (container, state) {
+                stdoutEditor = monaco.editor.create(container.getElement()[0], {
+                    automaticLayout: true,
+                    theme: "vs-dark",
+                    scrollBeyondLastLine: false,
+                    readOnly: state.readOnly,
+                    language: "plaintext",
+                    minimap: {
+                        enabled: false
+                    }
+                });
 
-            sourceEditor.getModel().onDidChangeContent(function (e) {
-                currentLanguageId = parseInt($selectLanguage.val());
-                isEditorDirty = sourceEditor.getValue() != sources[currentLanguageId];
-            });
-
-            sourceEditor.onDidLayoutChange(resizeEditor);
-        });
-
-        layout.registerComponent("stdin", function (container, state) {
-            stdinEditor = monaco.editor.create(container.getElement()[0], {
-                automaticLayout: true,
-                theme: "vs-dark",
-                scrollBeyondLastLine: false,
-                readOnly: state.readOnly,
-                language: "plaintext",
-                minimap: {
-                    enabled: false
-                }
-            });
-
-            Firepad.fromMonaco(inputFirepadRef, stdinEditor);
-        });
-
-        layout.registerComponent("stdout", function (container, state) {
-            stdoutEditor = monaco.editor.create(container.getElement()[0], {
-                automaticLayout: true,
-                theme: "vs-dark",
-                scrollBeyondLastLine: false,
-                readOnly: state.readOnly,
-                language: "plaintext",
-                minimap: {
-                    enabled: false
-                }
-            });
-
-            container.on("tab", function(tab) {
-                tab.element.append("<span id=\"stdout-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
-                    e.target.closest(".lm_tab").children[3].hidden = true;
+                container.on("tab", function(tab) {
+                    tab.element.append("<span id=\"stdout-dot\" class=\"dot\" hidden></span>");
+                    tab.element.on("mousedown", function(e) {
+                        e.target.closest(".lm_tab").children[3].hidden = true;
+                    });
                 });
             });
-        });
 
-        layout.registerComponent("stderr", function (container, state) {
-            stderrEditor = monaco.editor.create(container.getElement()[0], {
-                automaticLayout: true,
-                theme: "vs-dark",
-                scrollBeyondLastLine: false,
-                readOnly: state.readOnly,
-                language: "plaintext",
-                minimap: {
-                    enabled: false
-                }
-            });
+            layout.registerComponent("stderr", function (container, state) {
+                stderrEditor = monaco.editor.create(container.getElement()[0], {
+                    automaticLayout: true,
+                    theme: "vs-dark",
+                    scrollBeyondLastLine: false,
+                    readOnly: state.readOnly,
+                    language: "plaintext",
+                    minimap: {
+                        enabled: false
+                    }
+                });
 
-            container.on("tab", function(tab) {
-                tab.element.append("<span id=\"stderr-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
-                    e.target.closest(".lm_tab").children[3].hidden = true;
+                container.on("tab", function(tab) {
+                    tab.element.append("<span id=\"stderr-dot\" class=\"dot\" hidden></span>");
+                    tab.element.on("mousedown", function(e) {
+                        e.target.closest(".lm_tab").children[3].hidden = true;
+                    });
                 });
             });
-        });
 
-        layout.registerComponent("compile output", function (container, state) {
-            compileOutputEditor = monaco.editor.create(container.getElement()[0], {
-                automaticLayout: true,
-                theme: "vs-dark",
-                scrollBeyondLastLine: false,
-                readOnly: state.readOnly,
-                language: "plaintext",
-                minimap: {
-                    enabled: false
-                }
-            });
+            layout.registerComponent("compile output", function (container, state) {
+                compileOutputEditor = monaco.editor.create(container.getElement()[0], {
+                    automaticLayout: true,
+                    theme: "vs-dark",
+                    scrollBeyondLastLine: false,
+                    readOnly: state.readOnly,
+                    language: "plaintext",
+                    minimap: {
+                        enabled: false
+                    }
+                });
 
-            container.on("tab", function(tab) {
-                tab.element.append("<span id=\"compile-output-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
-                    e.target.closest(".lm_tab").children[3].hidden = true;
+                container.on("tab", function(tab) {
+                    tab.element.append("<span id=\"compile-output-dot\" class=\"dot\" hidden></span>");
+                    tab.element.on("mousedown", function(e) {
+                        e.target.closest(".lm_tab").children[3].hidden = true;
+                    });
                 });
             });
-        });
 
-        layout.registerComponent("sandbox message", function (container, state) {
-            sandboxMessageEditor = monaco.editor.create(container.getElement()[0], {
-                automaticLayout: true,
-                theme: "vs-dark",
-                scrollBeyondLastLine: false,
-                readOnly: state.readOnly,
-                language: "plaintext",
-                minimap: {
-                    enabled: false
-                }
-            });
+            layout.registerComponent("sandbox message", function (container, state) {
+                sandboxMessageEditor = monaco.editor.create(container.getElement()[0], {
+                    automaticLayout: true,
+                    theme: "vs-dark",
+                    scrollBeyondLastLine: false,
+                    readOnly: state.readOnly,
+                    language: "plaintext",
+                    minimap: {
+                        enabled: false
+                    }
+                });
 
-            container.on("tab", function(tab) {
-                tab.element.append("<span id=\"sandbox-message-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
-                    e.target.closest(".lm_tab").children[3].hidden = true;
+                container.on("tab", function(tab) {
+                    tab.element.append("<span id=\"sandbox-message-dot\" class=\"dot\" hidden></span>");
+                    tab.element.on("mousedown", function(e) {
+                        e.target.closest(".lm_tab").children[3].hidden = true;
+                    });
                 });
             });
-        });
 
-        layout.on("initialised", function () {
-            $(".monaco-editor")[0].appendChild($("#editor-status-line")[0]);
-            if (getIdFromURI()) {
-                loadSavedSource();
-            } else {
-                loadRandomLanguage();
-            }
-            $("#site-navigation").css("border-bottom", "1px solid black");
-            sourceEditor.focus();
-        });
+            layout.on("initialised", function () {
+                $(".monaco-editor")[0].appendChild($("#editor-status-line")[0]);
+                if (getIdFromURI()) {
+                    loadSavedSource();
+                } else {
+                    loadRandomLanguage();
+                }
+                $("#site-navigation").css("border-bottom", "1px solid black");
+                sourceEditor.focus();
+            });
 
-        layout.init();
+            layout.init();
+        });
     });
 });
 
