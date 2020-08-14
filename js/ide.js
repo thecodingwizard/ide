@@ -116,6 +116,9 @@ var layoutConfig = {
     }]
 };
 
+// import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices';
+// StaticServices.configurationService.get().updateValue('files.eol', '\r\n');
+
 function encode(str) {
     return btoa(unescape(encodeURIComponent(str || "")));
 }
@@ -645,7 +648,8 @@ $(document).ready(function () {
 
     loadMessages();
 
-    require(["vs/editor/editor.main"/*, "monaco-vim", "monaco-emacs"*/], function (ignorable, MVim, MEmacs) {
+    require(["vs/editor/editor.main", /*, "monaco-vim", "monaco-emacs"*/], function (ignorable, testing, MVim, MEmacs) {
+        console.log(ignorable, testing);
         layout = new GoldenLayout(layoutConfig, $("#site-content"));
 
         MonacoVim = MVim;
@@ -694,7 +698,7 @@ $(document).ready(function () {
                 minimap: {
                     enabled: false
                 },
-                rulers: []
+                rulers: [],
             });
 
             Firepad.fromMonaco(sourceFirepadRef, sourceEditor);
