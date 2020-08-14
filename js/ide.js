@@ -603,7 +603,6 @@ $(document).ready(function () {
     $statusLine = $("#status-line");
 
     $("body").keydown(function (e) {
-        console.log(e);
         var keyCode = e.keyCode || e.which;
         if (keyCode == 120) { // F9
             e.preventDefault();

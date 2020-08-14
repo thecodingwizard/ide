@@ -4,13 +4,6 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta name="description" content="Free and open-source online code editor that allows you to write and execute code from a rich set of languages.">
-    <meta name="keywords" content="online editor, online code editor, online ide, online compiler, online interpreter, run code online, learn programming online,
-            online debugger, programming in browser, online code runner, online code execution, debug online, debug C code online, debug C++ code online,
-            programming online, snippet, snippets, code snippet, code snippets, pastebin, execute code, programming in browser, run c online, run C++ online,
-            run java online, run python online, run ruby online, run c# online, run rust online, run pascal online, run basic online">
-    <meta name="author" content="Herman Zvonimir Došilović">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <meta property="og:title" content="Realtime Collaborative Code IDE">
@@ -35,8 +28,8 @@
         require.config({
             paths: {
                 "vs": "js/monaco-editor/min/vs",
-                "monaco-vim": "https://unpkg.com/monaco-vim/dist/monaco-vim",
-                "monaco-emacs": "https://unpkg.com/monaco-emacs/dist/monaco-emacs"
+                "monaco-vim": "js/monaco-vim",
+                "monaco-emacs": "js/monaco-emacs"
             }
         })
     </script>
@@ -73,8 +66,8 @@
 <!--                    <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div>-->
                     <div class="item" onclick="downloadSource()"><i class="download icon"></i> Download</div>
                     <!-- <div class="item"><i class="share icon"></i> Share</div> -->
-<!--                    <div id="insert-template-btn" class="item"><i class="file code outline icon"></i> Insert template-->
-<!--                        for current language</div>-->
+                    <div id="insert-template-btn" class="item"><i class="file code outline icon"></i> Insert template
+                        for current language</div>
                 </div>
             </div>
             <div class="link item" onclick="$('#site-settings').modal('show')"><i class="cog icon"></i> Settings</div>
