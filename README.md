@@ -16,6 +16,8 @@ var n=this.configurationService.getValue("files.eol",{overrideIdentifier:t,resou
 
 with
 
+```javascript
 return '\n';
+```
 
-in `js/monaco-editor/min/vs/editor/editor.main.js`
+in `third_party/monaco-editor/min/vs/editor/editor.main.js`
