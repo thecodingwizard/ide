@@ -593,7 +593,7 @@ $(document).ready(function () {
             };
             // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
-            firebase.analytics();
+            if (firebase.analytics) firebase.analytics();
 
             var [sourceFirepadRef, inputFirepadRef] = getExampleRef();
             function getExampleRef() {
