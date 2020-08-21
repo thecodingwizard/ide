@@ -756,6 +756,11 @@ $(document).ready(function () {
     });
 });
 
+window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+    alert("An error occurred: " + errorMsg); //or any message
+    return false;
+}
+
 // Template Sources
 var assemblySource = "\
 section	.text\n\
