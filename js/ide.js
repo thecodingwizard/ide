@@ -879,12 +879,12 @@ var groovySource = "println \"hello, world\"\n";
 
 var haskellSource = "main = putStrLn \"hello, world\"";
 
-var javaSource = `// Source: https://usaco-guide.vercel.app/general/io
+var javaSource = `// Source: https://usaco.guide/general/io
 
 import java.io.*;
 import java.util.*;
 
-public class template {
+public class Main {
     static class InputReader {
         BufferedReader reader;
         StringTokenizer tokenizer;
@@ -970,7 +970,7 @@ var prologSource = "\
 main :- write('hello, world\\n').\n\
 ";
 
-var pythonSource = `# Source: https://usaco-guide.vercel.app/general/io
+var pythonSource = `# Source: https://usaco.guide/general/io
 
 # take in an integer n on a single line
 n = int(input())
