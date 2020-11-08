@@ -475,7 +475,7 @@ function updateScreenElements() {
 }
 
 $(window).resize(function() {
-    layout.updateSize();
+    if (layout) layout.updateSize();
     updateScreenElements();
     // showMessages();
 });
