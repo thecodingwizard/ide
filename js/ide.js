@@ -757,7 +757,7 @@ $(document).ready(function () {
 });
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-    alert("An error occurred: " + errorMsg); //or any message
+    alert("An error occurred (you may want to reload the page or create a new file): " + errorMsg); //or any message
     return false;
 }
 
