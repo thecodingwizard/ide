@@ -879,12 +879,12 @@ var groovySource = "println \"hello, world\"\n";
 
 var haskellSource = "main = putStrLn \"hello, world\"";
 
-var javaSource = `// Source: https://usaco-guide.vercel.app/general/io
+var javaSource = `// Source: https://usaco.guide/general/io
 
 import java.io.*;
 import java.util.*;
 
-public class template {
+public class Main {
     static class InputReader {
         BufferedReader reader;
         StringTokenizer tokenizer;
@@ -970,20 +970,27 @@ var prologSource = "\
 main :- write('hello, world\\n').\n\
 ";
 
-var pythonSource = `# Source: https://usaco-guide.vercel.app/general/io
+var pythonSource = `# Source: https://usaco.guide/general/io
 
-# take in an integer n on a single line
-n = int(input())
-# take in integers n and m, both on the same line
-n, m = map(int, input().split())
-# read in a series of numbers on one line into a list
-list = [int(x) for x in input().split()]
 # read in a string
 myStr = input()
 # prints the string on its own line
 print(myStr)
-# prints integer n with a space after it (note the necessary explicit cast str())
-print(str(n), end = " ")
+
+# take in an integer n on a single line
+n = int(input())
+# prints integer n with " test" after it
+print(n, end=" test")
+
+# read in a series of numbers on one line into a list
+nums = [int(x) for x in input().split()]
+# does the same thing
+nums = list(map(int, input().split()))
+
+# read in integers n and m, both on the same line
+n, m = [int(x) for x in input().split()]
+# does the same thing
+n, m = map(int, input().split())
 `
 
 var rSource = "cat(\"hello, world\\n\")";
