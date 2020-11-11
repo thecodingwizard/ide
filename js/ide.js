@@ -881,38 +881,102 @@ var haskellSource = "main = putStrLn \"hello, world\"";
 
 var javaSource = `// Source: https://usaco.guide/general/io
 
-import java.io.*;
+/** Simple yet moderately fast I/O routines.
+ *
+ * Example usage:
+ *
+ * Kattio io = new Kattio();
+ *
+ * while (io.hasMoreTokens()) {
+ *    int n = io.nextInt();
+ *    double d = io.nextDouble();
+ *    double ans = d*n;
+ *
+ *    io.println("Answer: " + ans);
+ * }
+ *
+ * io.close();
+ *
+ *
+ * Some notes:
+ *
+ * - When done, you should always do io.close() or io.flush() on the
+ *   Kattio-instance, otherwise, you may lose output.
+ *
+ * - The nextInt(), nextDouble(), and nextLong() methods will throw an
+ *   exception if there is no more data in the input, so it is generally
+ *   a good idea to use hasMoreTokens() to check for end-of-file.
+ *
+ * @author: Kattis
+ */
+
 import java.util.*;
+import java.io.*;
+
+class Kattio extends PrintWriter {
+    // standard input
+    public Kattio() { this(System.in,System.out); }
+    public Kattio(InputStream i, OutputStream o) {
+        super(o);
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    // USACO-style file input
+    public Kattio(String problemName) throws IOException { 
+        super(new FileWriter(problemName+".out"));
+        r = new BufferedReader(new FileReader(problemName+".in"));
+    }
+
+    public boolean hasMoreTokens() {
+        return peek() != null;
+    }
+
+    public int nextInt() {
+        return Integer.parseInt(next());
+    }
+
+    public double nextDouble() {
+        return Double.parseDouble(next());
+    }
+
+    public long nextLong() {
+        return Long.parseLong(next());
+    }
+
+
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+
+    private String peek() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+
+    private String next() {
+        String ans = peek();
+        token = null;
+        return ans;
+    }
+}
 
 public class Main {
-    static class InputReader {
-        BufferedReader reader;
-        StringTokenizer tokenizer;
-        public InputReader(InputStream stream) {
-            reader = new BufferedReader(new InputStreamReader(stream), 32768);
-            tokenizer = null;
-        }
-        String next() { // reads in the next string
-            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
-                try {
-                    tokenizer = new StringTokenizer(reader.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return tokenizer.nextToken();
-        }
-        public int nextInt() { return Integer.parseInt(next()); } // reads in the next int
-        public long nextLong() { return Long.parseLong(next()); } // reads in the next long
-        public double nextDouble() { return Double.parseDouble(next()); } // reads in the next double
-    }
-    static InputReader r = new InputReader(System.in);
-    static PrintWriter pw = new PrintWriter(System.out);
+    static Kattio io = new Kattio();
     public static void main(String[] args) {
-
-        // YOUR CODE HERE
-
-        pw.close(); // flushes the output once printing is done
+        int a = io.nextInt();
+        int b = io.nextInt();
+        int c = io.nextInt();
+        io.print("sum is ");
+        io.println(a + b + c);
+        io.close(); // make sure to include this line -- closes io and flushes the output
     }
 }
 `;
