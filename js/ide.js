@@ -678,6 +678,8 @@ $(document).ready(function () {
                     }
                 });
 
+                stdoutEditor.setValue("sum is 6");
+
                 container.on("tab", function(tab) {
                     tab.element.append("<span id=\"stdout-dot\" class=\"dot\" hidden></span>");
                     tab.element.on("mousedown", function(e) {
