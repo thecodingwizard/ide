@@ -657,7 +657,13 @@ $(document).ready(function () {
                     }
                 });
 
-                Firepad.fromMonaco(inputFirepadRef, stdinEditor);
+                const firepad = Firepad.fromMonaco(inputFirepadRef, stdinEditor);
+
+                firepad.on('ready', function() {
+                    if (stdinEditor.getValue().length === 0) {
+                        stdinEditor.setValue(`1 2 3`);
+                    }
+                });
             });
 
             layout.registerComponent("stdout", function (container, state) {
@@ -806,14 +812,14 @@ public class Hello {\n\
 }\n\
 ";
 
-let cppSource = `#include <bits/stdc++.h>
+let cppSource = `// Source: https://usaco.guide/general/io
 
+#include <iostream>
 using namespace std;
 
 int main() {
-    cout << "Hello World!" << endl;
-    
-    return 0;
+    int a, b, c; cin >> a >> b >> c;
+    cout << "sum is " << a+b+c << "\\n";
 }
 `;
 
@@ -1036,25 +1042,8 @@ main :- write('hello, world\\n').\n\
 
 var pythonSource = `# Source: https://usaco.guide/general/io
 
-# read in a string
-myStr = input()
-# prints the string on its own line
-print(myStr)
-
-# take in an integer n on a single line
-n = int(input())
-# prints integer n with " test" after it
-print(n, end=" test")
-
-# read in a series of numbers on one line into a list
-nums = [int(x) for x in input().split()]
-# does the same thing
-nums = list(map(int, input().split()))
-
-# read in integers n and m, both on the same line
-n, m = [int(x) for x in input().split()]
-# does the same thing
-n, m = map(int, input().split())
+a,b,c = map(int, input().split())
+print("sum is",a+b+c)
 `
 
 var rSource = "cat(\"hello, world\\n\")";
