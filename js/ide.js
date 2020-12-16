@@ -1,12 +1,12 @@
 // RapidAPI Configuration (https://rapidapi.com/hermanzdosilovic/api/judge0)
-var apiUrl = "https://judge0.p.rapidapi.com";
+var apiUrl = "https://judge.usaco.guide";
 var apiAuth = {
-    "x-rapidapi-host": "judge0.p.rapidapi.com",
-    "x-rapidapi-key": "7bebf70ac0msh05bf56d3890e695p12423fjsn3c68debdf06a" // Your RapidAPI Key
+    // "x-rapidapi-host": "judge0.p.rapidapi.com",
+    // "x-rapidapi-key": "7bebf70ac0msh05bf56d3890e695p12423fjsn3c68debdf06a" // Your RapidAPI Key
 };
 var wait = localStorageGetItem("wait") || false;
 var pbUrl = "https://pb.judge0.com";
-var check_timeout = 1000;
+var check_timeout = 500;
 
 var blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
 var editorMode = localStorageGetItem("editorMode") || "normal";
