@@ -1,5 +1,5 @@
 // RapidAPI Configuration (https://rapidapi.com/hermanzdosilovic/api/judge0)
-var apiUrl = "https://judge.usaco.guide";
+var apiUrl = "https://judge0.usaco.guide";
 var apiAuth = {
     // "x-rapidapi-host": "judge0.p.rapidapi.com",
     // "x-rapidapi-key": "7bebf70ac0msh05bf56d3890e695p12423fjsn3c68debdf06a" // Your RapidAPI Key
