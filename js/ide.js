@@ -294,7 +294,9 @@ zip.file("main.cpp", `// Source: https://usaco.guide/general/io
 using namespace std;
 
 int main() {
-    cout << "hi" << endl;
+    long long s = 1;
+    for (int i = 1; i <= 100000000; i++) s = s*i%1000000007;
+    cout << "hi " << s << endl;
 }`);
 zip.file("run", "g++ -o /dev/stdout -std=c++17 main.cpp");
 
@@ -315,37 +317,57 @@ zip.generateAsync({type:"base64"})
           data: JSON.stringify(data),
           success: function (data, textStatus, jqXHR) {
               console.timeEnd("compile");
-              console.time("execute");
               let ct = 0;
-              let totCt = 10;
-              for (let i = 0; i < totCt; i++) {
+              let totCt = 20;
+              Promise.all(new Array(totCt).fill(0).map(() => {
                   var zip = new JSZip();
                   zip.file("prog", data.stdout.trim(), {base64: true})
                   zip.file("compile", "chmod +x prog");
                   zip.file("run", "./prog");
-                  zip.generateAsync({type:"base64"}).then((progBase64) => {
-                      var data = {
+                  return zip.generateAsync({type:"base64"}).then((progBase64) => {
+                      return {
                           additional_files: progBase64,
                           language_id: 89,
                       };
-                      $.ajax({
-                          url: apiUrl + `/submissions?base64_encoded=false&wait=true`,
-                          type: "POST",
-                          headers: apiAuth,
-                          async: true,
-                          contentType: "application/json",
-                          data: JSON.stringify(data),
-                          success: function (data, textStatus, jqXHR) {
-                              console.log(data);
-                              ct++;
-                              if (ct === totCt) {
-                                  console.timeEnd("execute");
-                              }
-                          },
-                          error: handleRunError
-                      });
                   });
-              }
+              })).then(submissions => {
+                  $.ajax({
+                      url: apiUrl + `/submissions/batch?base64_encoded=false`,
+                      type: "POST",
+                      headers: apiAuth,
+                      async: true,
+                      contentType: "application/json",
+                      data: JSON.stringify({
+                          submissions
+                      }),
+                      success: function (data, textStatus, jqXHR) {
+                          console.log("sent to server");
+                          console.time("execute");
+
+                          const check = () => {
+                              $.ajax({
+                                  url: apiUrl + "/submissions/batch?tokens=" + data.map(x => x.token).join(","),
+                                  type: "GET",
+                                  headers: apiAuth,
+                                  async: true,
+                                  success: function (data, textStatus, jqXHR) {
+                                      console.log(data.submissions.map(x => x.status.id <= 2 ? "?" : "*").join(""));
+                                      if (data.submissions.some(x => x.status.id <= 2)) {
+                                          setTimeout(check, check_timeout);
+                                          return;
+                                      }
+                                      console.log(data.submissions);
+                                      console.timeEnd("execute");
+                                  },
+                                  error: handleRunError
+                              });
+                          }
+
+                          setTimeout(check, check_timeout);
+                      },
+                      error: handleRunError
+                  });
+              })
           },
           error: handleRunError
       });
