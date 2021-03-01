@@ -287,6 +287,70 @@ function loadSavedSource() {
     }
 }
 
+var zip = new JSZip();
+zip.file("main.cpp", `// Source: https://usaco.guide/general/io
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "hi" << endl;
+}`);
+zip.file("run", "g++ -o /dev/stdout -std=c++17 main.cpp");
+
+console.time("compile");
+zip.generateAsync({type:"base64"})
+  .then(function(base64) {
+      var data = {
+          additional_files: base64,
+          language_id: 89,
+      };
+
+      $.ajax({
+          url: apiUrl + `/submissions?base64_encoded=true&wait=true`,
+          type: "POST",
+          headers: apiAuth,
+          async: true,
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          success: function (data, textStatus, jqXHR) {
+              console.timeEnd("compile");
+              console.time("execute");
+              let ct = 0;
+              let totCt = 10;
+              for (let i = 0; i < totCt; i++) {
+                  var zip = new JSZip();
+                  zip.file("prog", data.stdout.trim(), {base64: true})
+                  zip.file("compile", "chmod +x prog");
+                  zip.file("run", "./prog");
+                  zip.generateAsync({type:"base64"}).then((progBase64) => {
+                      var data = {
+                          additional_files: progBase64,
+                          language_id: 89,
+                      };
+                      $.ajax({
+                          url: apiUrl + `/submissions?base64_encoded=false&wait=true`,
+                          type: "POST",
+                          headers: apiAuth,
+                          async: true,
+                          contentType: "application/json",
+                          data: JSON.stringify(data),
+                          success: function (data, textStatus, jqXHR) {
+                              console.log(data);
+                              ct++;
+                              if (ct === totCt) {
+                                  console.timeEnd("execute");
+                              }
+                          },
+                          error: handleRunError
+                      });
+                  });
+              }
+          },
+          error: handleRunError
+      });
+  });
+
 function run() {
     if (sourceEditor.getValue().trim() === "") {
         showError("Error", "Source code can't be empty!");
